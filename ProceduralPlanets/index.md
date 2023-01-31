@@ -1,11 +1,17 @@
+<header style="width: 100%; text-align: center; align-content: center; align-self: center; margin-bottom: 75px; color: #fff; text-decoration: none;">
+        <nav>
+            <a style="color: #fff; text-decoration: none; margin-right: 20px;" href="https://thecodecofficial.github.io/Blog/">Home</a>
+            <a style="color: #fff; text-decoration: none; margin-right: 20px;" href="https://thecodecofficial.github.io/Blog/about.html">About</a>
+        </nav>
+    </header>
+
 <div style="text-align:center"><h1>Designing Beautiful Worlds with Procedural Texture Generation</h1>
     <h6>
-    	11. January 2023
+    	29. January 2023
     </h6>
 </div>
 
-
-*If you don't wanna read the post you can check out an interactive playground [here](https://thecodec.itch.io/)*
+*If you don't wanna read the post you can check out an interactive playground [here](https://thecodec.itch.io/procedural-planet-generation-playground)*
 
 #### Motivation
 
@@ -28,7 +34,7 @@ This looks pretty bad.. It is not natural at all. Let's try something else.
   <img src="Images/perlin.png" style="width:25%">
   <figcaption style="text-align: center">Perlin Noise</figcaption>
 </figure>
-[Perlin Noise](https://en.wikipedia.org/wiki/Perlin_noise) is a widely-used noise function. It creates smooth looking noise, which is way better suited for many applications. However, in nature we wont find anything this uniformly smooth.. Let's keep looking.
+[Perlin Noise](https://en.wikipedia.org/wiki/Perlin_noise) is a widely-used noise function. It creates smooth looking noise, which is way better suited for many applications. However, in nature we won't find anything this uniformly smooth... let's keep looking.
 
 <figure style="text-align: center">
   <img src="Images/fractalNoise.png" style="width:25%">
@@ -110,7 +116,7 @@ We have some nice looking rocky planets, but we might want to have some more fea
     <figcaption style="text-align: center">Visible Impact Craters on the Penumbra</figcaption>
   </figure>
 
-- **Oceans: **We can define some waterlevel and treat the noise values as a height values. Values below the waterlevel should be water, i.e. have uniform height and some predefined color. Additionally, we can make the water surface more shiny. The crater map from before can also be used to modify the height map to make it look like the craters have been filled with water.
+- **Oceans: **We can define some waterlevel and treat the noise values as height values. Values below the waterlevel should be water, i.e. have uniform height and some predefined color. Additionally, we can make the water surface more shiny. The crater map from before can also be used to modify the height map to make it look like the craters have been filled with water.
 
   <figure style="text-align: center">
     <img src="Images/waterlevels.png" style="width:80%">
@@ -218,13 +224,8 @@ This is my first ever blog post - I'd appreciate any form of feedback!
 <div style="text-align: center">
     <a href="https://github.com/TheCodecOfficial"><img src="../icons/github-mark-white.svg" style="width:5%; margin: 50px;"></a>
     <a href="mailto:trutsch@student.ethz.ch"><img src="../icons/mail.png" style="width:5%; margin: 50px"></a>
-    <img src="../icons/discord-mark-white.svg" onclick="copyText()" style="width:5%; margin: 50px">
+    <!--<img src="../icons/discord-mark-white.svg" onclick="copyText()" style="width:5%; margin: 50px">
     <textarea id="textbox" style="display: none">TheCodec#2261</textarea>
 </div>
-<div style="text-align: center; display: none" id="copyInfo"><p>Copied Discord Username to Clipboard</p>
+<div style="text-align: center; display: none" id="copyInfo"><p>Copied Discord Username to Clipboard</p>-->
 </div>
-
-
-
-<script src="../js/clipboard.js"></script>
-
