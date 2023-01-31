@@ -1,4 +1,3 @@
 # Blog
 
-Current posts:
-- Procedural Planet Generation
+Still very WIP.

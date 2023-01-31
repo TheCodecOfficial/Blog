@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>TheCodec's Blog</title>
+        <link>https://thecodecofficial.github.io/Blog/</link>
+        <description>Blog about various projects</description>
+        <item>
+            <title>Designing Beautiful Worlds with Procedural Texture Generation</title>
+            <link>https://thecodecofficial.github.io/Blog/ProceduralPlanets/</link>
+            <guid>https://thecodecofficial.github.io/Blog/ProceduralPlanets/</guid>
+            <description>In this project I tried to procedurally generate visually appealing 3D
+                renders of planets and stars. By layering a bunch of noise functions we can create
+                complex textures that resemble space.</description>
+            <pubDate>Sun, 29 Jan 2023</pubDate>
+        </item>
+    </channel>
+</rss>

@@ -1,0 +1,115 @@
+:root {
+    --bg-color-1: #0D1117;
+    --bg-color-2: #161B22;
+}
+
+body {
+    background-color: var(--bg-color-1);
+    color: #fff;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Jost', sans-serif;
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+header,
+main,
+footer {
+    width: 100%;
+    text-align: center;
+    align-content: center;
+    align-self: center;
+}
+
+header,
+main {
+    margin: 20px 0;
+}
+
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 20px;
+}
+
+h1 {
+    color: #fff;
+    font-size: 48px;
+    padding: 50px;
+    margin: 100px 0;
+    text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 36px;
+        margin: 50px 0;
+    }
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media screen and (min-width: 768px) {
+    li {
+        width: 90%;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    li {
+        width: 30%;
+    }
+}
+
+li {
+    background-color: var(--bg-color-2);
+    color: #fff;
+    padding: 0 20px 20px;
+    margin: 20px;
+    text-align: left;
+    height: 100%;
+}
+
+
+h2 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.postlink {
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid #fff;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+}
+
+footer {
+    background-color: var(--bg-color-2);
+    color: #ccc;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+}
