@@ -10,6 +10,9 @@
     	29. January 2023
     </h6>
 </div>
+<figure style="text-align: center">
+  <img src="Images/earthbig.png" style="width:100%">
+</figure>
 
 *If you don't wanna read the post you can check out an interactive playground [here](https://thecodec.itch.io/procedural-planet-generation-playground)*
 
