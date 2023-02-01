@@ -40,6 +40,14 @@ header nav a {
     margin-right: 20px;
 }
 
+webring-banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
 h1 {
     color: #fff;
     font-size: 48px;

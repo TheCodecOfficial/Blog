@@ -229,3 +229,8 @@ This is my first ever blog post - I'd appreciate any form of feedback!
 </div>
 <div style="text-align: center; display: none" id="copyInfo"><p>Copied Discord Username to Clipboard</p>-->
 </div>
+<webring-banner theme="dark" style="display: flex; justify-content: center; align-items: center;">
+    <p>Member of the <a href="https://polyring.ch">Polyring</a> webring</p>
+</webring-banner>
+<script async src="https://polyring.ch/embed.js" charset="utf-8"></script>
+
