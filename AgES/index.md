@@ -110,7 +110,34 @@ float3 ACESFitted(float3 color)
 }
 ```
 
+$$
+C_o=A_\text{ACES\_OUT} f_\text{RRT\_ODT}(A_\text{ACES\_IN} C_I)\\
+f_\text{RRT\_ODT}(C)=\frac{C \cdot (C + 0.0245786) - 0.000090537}{C \cdot (0.983729 \cdot C + 0.4329510) + 0.238081}
+$$
 
+```python
+def AgESX_tonemap(x):
+    AgES_input_mat = np.array(
+        [
+            [0.87973, 0.43996, 0.10074],
+            [0.14475, 1.21123, 0.16654],
+            [0.07477, 0.15437, 1.34944],
+        ]
+    )
+    AgES_output_mat = np.array(
+        [
+            [1.60475, -0.53108, -0.07367],
+            [-0.10208, 1.10813, -0.00605],
+            [-0.00327, -0.07276, 1.07602],
+        ]
+    )
+
+    x = np.dot(x, AgES_input_mat.T)
+    x = 1.01841 * x / (x + 0.33286)
+    x = np.dot(x, AgES_output_mat.T)
+    x = np.clip(x, 0, 1)
+    return x
+```
 
 #### References/Acknowledgements
 
