@@ -17,7 +17,9 @@
 
 With version 4, Blender came with a brand new set of color management options. Most notably, the AgX view transform was added as the default view transform. AgX is a tonemapper that compresses the high range of colors into a limited dynamic range for displaying them on a screen. It handles over-exposed areas much better than former approaches by producing similar responses to high intensities as real cameras.
 
-I've been working on a simple raytracer recently. To get a nice cinematic look I thought I could implement AgX into my own pipeline. Looking into Blender's code I saw that it was implemented via a LUT, a look up table containing precomputed color values. This kind of bugged me as I couldn't figure out how to transform the raw rgb values from the raytracer to use in the LUT. Also, there must be some direct way to compute it, as all the values in the LUT had to have been computed somehow. After hours of research trying to figure out AgX's implementation I came up empty handed so I ultimately decided to create my own approximation for AgX.
+I've been working on a simple raytracer recently. To get a nice cinematic look I thought I could implement AgX into my own pipeline. Looking into Blender's code I saw that it was implemented via a LUT, a look up table containing precomputed color values. This kind of bugged me as I couldn't figure out how to transform the raw rgb values from the raytracer to use in the LUT. Also, there must be some direct way to compute it, as all the values in the LUT had to have been computed somehow. After hours of research trying to figure out AgX's implementation I came up empty handed so I ultimately decided to create my own approximation for AgX. 
+
+The main goal was to create a tonemapper that is similar to AgX and looks nice, everything else comes after that. So I didn't care about exact accuracy to the real AgX operator as long as it looked good and generally couldn't be discerned from the real one. Same with performance.
 
 #### Tone Mapping
 
@@ -67,11 +69,11 @@ Now to actually see the effects of the tone mapping operators, we'll increase th
         <figcaption style="text-align: center">AgX Tone Mapping (Blender)</figcaption>
       </figure>
 
-#### Approximating AgX
+#### Looking at Existing Approximations
 
-lorem ipsum
+One popular implementation of ACES tone mapping is an approximation by Stephen Hill. First it transforms the raw input color into a color space defined by ACES. The values are then transformed in this new space according to a sigmoid-like function, followed by a transformation back to RGB. The sigmoid-like function (`RRTandODTFit` in the code snippet) is an approximative fit of the real RRT and ODT functions defined by ACES (the exact meaning of these functions is not important for this post). 
 
-```c++
+````c++
 static const float3x3 ACESInputMat =
 {
     {0.59719, 0.35458, 0.04823},
@@ -79,7 +81,6 @@ static const float3x3 ACESInputMat =
     {0.02840, 0.13383, 0.83777}
 };
 
-// ODT_SAT => XYZ => D60_2_D65 => sRGB
 static const float3x3 ACESOutputMat =
 {
     { 1.60475, -0.53108, -0.07367},
@@ -97,26 +98,64 @@ float3 RRTAndODTFit(float3 v)
 float3 ACESFitted(float3 color)
 {
     color = mul(ACESInputMat, color);
-
-    // Apply RRT and ODT
     color = RRTAndODTFit(color);
-
     color = mul(ACESOutputMat, color);
 
-    // Clamp to [0, 1]
-    color = saturate(color);
-
-    return color;
+    return saturate(color); // Clamp to [0, 1]
 }
-```
+````
 
+ <p style="text-align: center">Hill ACES Tone Mapping (Simplified)</p>
+
+In mathematical terms, we have the transformation matrices $T_{\text{ACES}_\text{in}}, T_{\text{ACES}_\text{out}}$ and a function $f_\text{RRT\_ODT}(c)= \frac{c \cdot (c + 0.0245786) - 0.000090537}{c \cdot (0.983729 \cdot c + 0.4329510) + 0.238081}$. The tone mapping operator is then defined as
 $$
-C_o=A_\text{ACES\_OUT} f_\text{RRT\_ODT}(A_\text{ACES\_IN} C_I)\\
-f_\text{RRT\_ODT}(C)=\frac{C \cdot (C + 0.0245786) - 0.000090537}{C \cdot (0.983729 \cdot C + 0.4329510) + 0.238081}
+c_\text{out} =T_{\text{ACES}_\text{out}}\cdot f_\text{RRT\_ODT} (T_{\text{ACES}_\text{in}}\cdot c_\text{in})
 $$
+where $c_\text{in}, c_\text{out}$ are the input and output colors respectively.
+
+#### Approximating AgX
+
+I thought that this approach for the ACES tone mapping could be used for other tone mapping operators by replacing $f_\text{RRT\_ODT}$ with another function $f$. This essentially boils down to a tone mapping $f$ in the ACES color space. Through experimentation I found that a function similar to the Reinhard operator yields similar looking results to AgX when inserted into the equation.
+$$
+c_\text{out} =T_{\text{ACES}_\text{out}}\cdot f (T_{\text{ACES}_\text{in}}\cdot c_\text{in})\\
+f(c):=\frac{c}{c+0.2}
+$$
+[IMAGE ACES, AgX, this, side by side]
+
+It felt like I was getting closer to achieving the AgX look, so it was time to formulate this as an optimization problem. Let's modify $f$ to be more general: $f_{\alpha,\beta}(c)=\alpha\cdot\frac{c}{c+\beta}$. Additionally, let's introduce another transformation matrix $T_\text{shift}$ after $T_{\text{ACES}_\text{in}}$, to account for some interaction between the color channels (because $f_{\alpha,\beta}$ is applied to each channel separately and we might need to rotate the space first). So our final formula is
+$$
+c_\text{out} =T_{\text{ACES}_\text{out}}\cdot f_{\alpha,\beta} (T_\text{shift}\cdot T_{\text{ACES}_\text{in}}\cdot c_\text{in}).
+$$
+The objective for the optimization can be formulated as follows:
+$$
+\underset{\alpha,\beta,T}{\arg\min}\space ||c_\text{out}-c_\text{AgX}||_2\\
+\underset{\alpha,\beta,T}{\arg\min}\space ||T_{\text{ACES}_\text{out}}\cdot f_{\alpha,\beta} (T_\text{shift}\cdot T_{\text{ACES}_\text{in}}\cdot c_\text{in})-c_\text{AgX}||_2\\
+$$
+Where $c_\text{AgX}$ is the true color corresponding to $c_\text{in}$ tone mapped via AgX.
+
+#### Obtaining Data and Fitting
+
+Next I needed some datapoints to fit to. For this I simply created a few scenes with a good variety of colors and intensities in Blender, rendered them and exported them as both raw and tonemapped (with AgX). To ensure that the data is as accurate as possible, I exported everything as an uncompressed (?) .exr file. This gets rid of any unwanted compression artifacts (and we don't have to worry about any gamma-correction related stuff). With the dataset ready, the last step was to actually fit the data.
+
+There might be some neat way to solve the optimization and get the best result. However, a close solution is good enough and I really couldn't be bothered so I decided to use SciPy to solve it. Using BFGS yields following parameters:
+$$
+\alpha=0.98,\beta=0.2,
+T_\text{shift}=
+\begin{bmatrix}
+1&0&0\\
+0&1&0\\
+0&0&1\\
+\end{bmatrix}\\
+\text{NOT THE ACTUAL VALUES}
+$$
+This completes our approximation of AgX tone mapping. When implementing it, we can combine the matrices $T_{\text{ACES}_\text{in}}$ and $T_\text{shift}$ into one to save a (somewhat) expensive matrix multiplication.
+
+#### Results
+
+- Comparisons
 
 ```python
-def AgESX_tonemap(x):
+def AgES_tonemap(x):
     AgES_input_mat = np.array(
         [
             [0.87973, 0.43996, 0.10074],
@@ -138,6 +177,8 @@ def AgESX_tonemap(x):
     x = np.clip(x, 0, 1)
     return x
 ```
+
+ <p style="text-align: center">Python Implementation of AgES Tone Mapping</p>
 
 #### References/Acknowledgements
 
