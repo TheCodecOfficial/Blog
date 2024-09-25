@@ -59,8 +59,6 @@ Now to see the effects of the tone mapping operators, we'll increase the intensi
     <img src="Images/colors_aces.jpg" style="width:25%; text-align: center">
     <figcaption style="text-align: center">ACES Tone Mapping (Hill<sup>4</sup>)</figcaption>
   </figure>
-  
-  
   - **AgX** (from silver halide^5^, a chemical used in photographic film) is currently the standard tonemapper in Blender. It was designed for better color management, replacing Blender's Filmic tone mapping. Bright areas are handled especially well and AgX doesn't suffer from the six colors problem. The resulting image might have some hue shifts and low contrast, but the latter can be fixed easily by further image processing.
   
     <figure style="text-align: center">
@@ -107,15 +105,15 @@ float3 ACESFitted(float3 color)
 
 In mathematical terms, we have the transformation matrices $T_{\text{ACES}_\text{in}}, T_{\text{ACES}_\text{out}}$, and a function $f_\text{RRT\_ODT}(c)$. The tone mapping operator is then defined as
 $$
-c_\text{out} =T_{\text{ACES}_\text{out}}\cdot f_\text{RRT\_ODT} (T_{\text{ACES}_\text{in}}\cdot c_\text{in})
+c_\text{out} =\text{clamp}(T_{\text{ACES}_\text{out}}\cdot f_\text{RRT\_ODT} (T_{\text{ACES}_\text{in}}\cdot c_\text{in}))
 $$
-where $c_\text{in}, c_\text{out}$ are the input and output colors respectively.
+where $c_\text{in}, c_\text{out}$ are the input and output colors respectively. The $\text{clamp}$ function constrains the output to $[0, 1]$ because some values might still be outside this range.
 
 #### Approximating AgX
 
 I thought that this approach for the ACES tone mapping could be used for other tone mapping operators by replacing $f_\text{RRT\_ODT}$ with another function $f$. This essentially boils down to a tone mapping $f$ inside the ACES color space. Through experimentation, I found that a function similar to the Reinhard operator yields similar-looking results to AgX when inserted into the equation (and interpreted as gamma corrected, more on that later).
 $$
-c_\text{out} =T_{\text{ACES}_\text{out}}\cdot f (T_{\text{ACES}_\text{in}}\cdot c_\text{in})\\
+c_\text{out} =\text{clamp}(T_{\text{ACES}_\text{out}}\cdot f (T_{\text{ACES}_\text{in}}\cdot c_\text{in}))\\
 f(c):=\frac{c}{c+0.2}
 $$
 Let's look at a simple scene for comparison:
@@ -157,7 +155,7 @@ Our simple AgX approximation is overall less saturated than ACES, giving a simil
 
 It felt like I was getting closer to achieving the AgX look, so it was time to formulate this as an optimization problem. Let's modify $f$ to be more general: $f_{\alpha,\beta}(c)=\alpha\cdot\frac{c}{c+\beta}$. Additionally, let's introduce another transformation matrix $T_\text{shift}$ after $T_{\text{ACES}_\text{in}}$, to account for some interaction between the color channels (because $f_{\alpha,\beta}$ is applied to each channel separately and we might need to rotate the space first to fix the hue-shifts). So our final formula is
 $$
-c_\text{out} =T_{\text{ACES}_\text{out}}\cdot f_{\alpha,\beta} (T_\text{shift}\cdot T_{\text{ACES}_\text{in}}\cdot c_\text{in}).
+c_\text{out} =\text{clamp}(T_{\text{ACES}_\text{out}}\cdot f_{\alpha,\beta} (T_\text{shift}\cdot T_{\text{ACES}_\text{in}}\cdot c_\text{in}))
 $$
 As a cost function, we can use a simple L2-norm. The optimization can then be formulated as follows:
 $$
@@ -167,7 +165,7 @@ Where $c_\text{AgX}$ is the true AgX tone mapped color corresponding to $c_\text
 
 #### Obtaining Data and Fitting
 
-Next, I needed some data points to fit the model. For this I simply created a few scenes with a good variety of colors and intensities in Blender, rendered them, and exported them as both raw and AgX tone mapped. To ensure that the data is as accurate as possible, I exported everything in the OpenEXR format. This supports a high color depth, gets rid of any unwanted compression artifacts and we don't have to worry about any gamma correction related stuff.
+Next, I needed some data points to fit the model. For this I simply created a few scenes with a good variety of colors and intensities in Blender, rendered them, and exported them as both raw and AgX tone mapped. To ensure that the data is as accurate as possible, I exported everything in the OpenEXR format. This supports a high color depth, gets rid of any unwanted compression artifacts and we don't have to worry about any gamma correction related stuff (turns out we DO have to worry about that, more on that in the next section).
 
 There might be a neat way to solve the optimization and get the best result. However, a close solution is good enough and I really couldn't be bothered so I decided to use SciPy to solve it. Using BFGS yields the following parameters (rounded to 5 digits after the decimal):
 $$
