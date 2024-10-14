@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap&family=Nunito&display=swap');
+
+/* General Styles */
+body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Jost', sans-serif;
+    max-width: 740px;
+}
+
+.nonumberh1,
+.nonumberh2,
+.nonumberh3,
+.nonumberh4,
+.nonumberh5,
+.nonumberh6 {
+    font-family: 'Jost', sans-serif !important;
+    font-weight: bold !important;
+    border: none !important;
+    color: #c9d1d9 !important;
+}
+
+#date {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #8b949e;
+}
+
+.nonumberh1 {
+    border-bottom: 1px solid #21262d !important;
+    padding-bottom: 10px !important;
+    text-align: center;
+    font-size: 2em !important;
+    line-height: 1.2em !important;
+}
+
+a {
+    color: #58a6ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code {
+    background-color: #161b22;
+    color: #c9d1d9;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+pre {
+    background-color: #161b22;
+    color: #c9d1d9;
+    padding: 16px;
+    border-radius: 6px;
+    overflow: auto;
+}
+
+pre.listing {
+    resize: none !important;
+    scrollbar-color: #30363d #161b22;
+    scrollbar-width: thin;
+}
+
+.listingcaption {
+    margin-top: -10px !important;
+}
+
+/* Headers */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #c9d1d9;
+    border-bottom: 1px solid #21262d;
+    font-family: 'Jost', sans-serif !important;
+}
+
+h1 {
+    border-color: #58a6ff;
+}
+
+p {
+    color: #c9d1d9;
+    font-size: 1.1em !important;
+    font-weight: normal !important;
+    line-height: 1.8;
+    font-family: "Nunito", sans-serif;
+}
+
+/* Blockquote */
+blockquote {
+    color: #8b949e;
+    border-left: 4px solid #58a6ff;
+    padding-left: 10px;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #0d1117;
+    table-layout: fixed;
+}
+
+.table {
+    table-layout: auto !important;
+}
+
+th,
+td {
+    border: none !important;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: transparent !important;
+}
+
+tr:nth-child(even) {
+    background-color: #161b22 !important;
+}
+
+/* Lists */
+ul,
+ol {
+    color: #c9d1d9;
+}
+
+li {
+    margin-bottom: 8px;
+    color: #c9d1d9;
+    font-size: 1.1em !important;
+    font-weight: normal !important;
+    line-height: 1.8;
+    font-family: "Nunito", sans-serif;
+    text-align: justify !important;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    border-radius: 2px;
+}
+
+/*.imagecaption {
+    max-width: 10%;
+    text-align: center !important;
+}*/
+
+/* Horizontal Rule */
+hr {
+    border: 0;
+    border-top: 1px solid #30363d;
+    margin: 20px 0;
+}
+
+/* Links inside pre */
+pre a {
+    color: #58a6ff;
+}
+
+/* Inputs and Buttons */
+input,
+button {
+    background-color: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+input:focus,
+button:focus {
+    outline: none;
+    border-color: #58a6ff;
+}
+
+code {
+    font-family: 'Roboto Mono', monospace !important;
+    font-weight: bold;
+}
+
+a {
+    font-family: 'Jost', sans-serif !important;
+    font-size: 0.9em !important;
+    color: #79C0FF !important;
+}
+
+.endnote {
+    font-size: 1em !important;
+}
+
+.hljs-comment,
+.hljs-quote {
+    color: #8B949E
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+    color: #cc6666
+}
+
+.hljs-number,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+    color: #79C0FF
+}
+
+.hljs-attribute {
+    color: #f0c674
+}
+
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+    color: #b5bd68
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-built_in,
+.hljs-builtin-name {
+    color: #FFA657
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-type {
+    color: #d04250
+}
+
+.hljs {
+    display: block;
+    overflow-x: auto;
+    background: #1d1f21;
+    color: #c5c8c6;
+    padding: .5em;
+}
+
+.hljs-emphasis {
+    font-style: italic
+}
+
+.hljs-strong {
+    font-weight: bold
+}
+
+.hljs-function .hljs-title {
+    color: #FFA657
+}
