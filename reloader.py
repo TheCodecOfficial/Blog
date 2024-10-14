@@ -25,7 +25,7 @@ def md_to_html():
     content = f"{header}\n\n{content}\n\n{footer}"
 
     # Create the new HTML file
-    html_file = md_file.replace(".md", ".md.html")
+    html_file = md_file.replace(".md", ".html")
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(content)
 
