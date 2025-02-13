@@ -20,6 +20,71 @@ body {
     color: #c9d1d9 !important;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Jost', sans-serif !important;
+    font-weight: bold !important;
+    color: #c9d1d9 !important;
+}
+
+.toc {
+    background-color: #161b22 !important; /* Slightly darker background for contrast */
+    border: 1px solid #30363d !important; /* Subtle border to delineate the TOC area */
+    border-radius: 6px !important;
+    padding: 16px !important;
+    padding-top: 0px !important;
+    margin: 20px 0 !important;
+    font-family: 'Nunito', sans-serif !important;
+    color: #c9d1d9 !important;
+}
+
+.toc ol {
+    list-style: decimal inside !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.2em !important;
+}
+
+.toc li {
+    margin-bottom: 0px !important;
+    line-height: 1.6 !important;
+    color: #c9d1d9 !important;
+}
+
+.toc li::marker {
+    content: "\25B8";
+}
+
+.toc li a {
+    /*color: #58a6ff !important;*/
+    color: #dfe4e9 !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease, text-decoration 0.2s ease !important;
+}
+
+.toc ul a {
+    color: #c9d1d9 !important;
+}
+
+.toc li a:hover {
+    /*color: #d5a767 !important;*/
+    color: #d53f5a !important;
+    text-decoration: underline !important;
+}
+
+.toc-title {
+    font-weight: bold !important;
+    font-size: 1.2em !important;
+    margin-bottom: 12px !important;
+    color: #8b949e !important;
+    border-bottom: 1px solid #30363d !important;
+    padding-bottom: 4px !important;
+}
+
 #date {
     font-weight: bold;
     font-size: 0.9em;
@@ -66,18 +131,6 @@ pre.listing {
 
 .listingcaption {
     margin-top: -10px !important;
-}
-
-/* Headers */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    color: #c9d1d9;
-    border-bottom: 1px solid #21262d;
-    font-family: 'Jost', sans-serif !important;
 }
 
 h1 {
@@ -148,10 +201,14 @@ img {
     border-radius: 2px;
 }
 
-/*.imagecaption {
-    max-width: 10%;
+.comparison_caption {
+    margin-top: -30px !important;
     text-align: center !important;
-}*/
+}
+
+.imagecaption {
+    text-align: center !important;
+}
 
 /* Horizontal Rule */
 hr {
