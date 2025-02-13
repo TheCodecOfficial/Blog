@@ -23,5 +23,13 @@
                 over accuracy.</description>
             <pubDate>Wed, 25 Sep 2024</pubDate>
         </item>
+        <item>
+            <title>Developing a Physically-Based Path Tracer (CG24 Project Report)</title>
+            <link>https://thecodecofficial.github.io/Blog/CG24/</link>
+            <guid>https://thecodecofficial.github.io/Blog/CG24/</guid>
+            <description>In this report, I explain the techniques I used to implement features for my own
+                path tracer and how I designed the final scene, which got me first place in the 2024 Rendering Competition.</description>
+            <pubDate>Thu, 13 Feb 2025</pubDate>
+        </item>
     </channel>
 </rss>
