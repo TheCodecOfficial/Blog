@@ -240,7 +240,7 @@ Bitmap<Color3f> image(Vector2i(size, size), [&](int x, int y) {
     float v = fractalPerlin(p, octaves, lacunarity, persistence);
     return Color3f(remap(v, -1.0f, 1.0f, range_min, range_max));
 });
-````
+```
 
 ### Validation
 
