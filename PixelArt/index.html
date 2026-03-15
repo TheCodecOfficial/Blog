@@ -30,6 +30,7 @@
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
 
     <style>
         body {
@@ -82,14 +83,26 @@
         .prose ul>li::marker {
             color: #e6edf3;
         }
+
+        h2 {
+            border-bottom: 2px solid #eee;
+        }
     </style>
 </head>
 
 <body class="antialiased">
 
+    <a href="../index.html" 
+   class="fixed top-6 left-6 z-50 w-12 h-12 bg-[#161b22] hover:bg-[#30363d] border border-[#30363d] rounded-full transition-colors duration-200 flex items-center justify-center shadow-lg" 
+   title="Return Home">
+    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Buildings/home-line.svg" 
+         alt="Home" 
+         class="w-6 h-6 invert-[.92] sepia-[.04] saturate-[10] hue-rotate-[183deg] brightness-[101%] contrast-[102%]" />
+</a>
+
     <main class="max-w-3xl mx-auto px-6 py-12 prose prose-invert prose-pre:bg-transparent text-justify">
 
-        <header class="text-center not-prose mb-12">
+        <header class="text-center not-prose mb-20">
             <h1 class="text-4xl font-bold mb-2 pt-20">Rendering Pixel Art in Real Time</h1>
             <p class="text-gray-400">15.03.2026</p>
         </header>
