@@ -31,5 +31,12 @@
                 path tracer and how I designed the final scene, which got me first place in the 2024 Rendering Competition.</description>
             <pubDate>Thu, 13 Feb 2025</pubDate>
         </item>
+        <item>
+            <title>Rendering Pixel Art in Real Time</title>
+            <link>https://thecodecofficial.github.io/Blog/PixelArt/</link>
+            <guid>https://thecodecofficial.github.io/Blog/PixelArt/</guid>
+            <description>A high-level overview of my approach to rendering pixel art in real-time.</description>
+            <pubDate>Sun, 15 Mar 2026</pubDate>
+        </item>
     </channel>
 </rss>
