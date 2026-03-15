@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendering Pixel Art in Real Time</title>
+
+    <link rel="icon" type="image/x-icon" href="../icons/planet-icon.png">
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '\\[', right: '\\]', display: true}
+      ],
+      throwOnError : false
+    });">
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/styles.css" />
+
+    <style>
+        body {
+            background-color: #0D1117;
+            color: #e6edf3;
+        }
+
+        /* Custom caption styling to match your screenshots */
+        .figure-caption {
+            text-align: center;
+            font-style: italic;
+            color: #8b949e;
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        /* Custom code block container */
+        .code-container {
+            background: #161b22;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        img-comparison-slider {
+            --divider-width: 2px;
+            --divider-color: #ffffff;
+            --default-handle-opacity: 1;
+            outline: none;
+            display: block;
+            /* Ensures no inline-block padding */
+        }
+
+        /* Prevent the images from having 'bottom-gap' inside the slider */
+        img-comparison-slider img {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0 !important;
+            /* Override 'prose' margins */
+        }
+
+        img-comparison-slider {
+            --divider-width: 2px;
+            --divider-color: #bdbdbd;
+            --default-handle-opacity: 1;
+        }
+
+        .prose ul>li::marker {
+            color: #e6edf3;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <main class="max-w-3xl mx-auto px-6 py-12 prose prose-invert prose-pre:bg-transparent text-justify">
+
+        <header class="text-center not-prose mb-12">
+            <h1 class="text-4xl font-bold mb-2 pt-20">Rendering Pixel Art in Real Time</h1>
+            <p class="text-gray-400">15.03.2026</p>
+        </header>
+
+        <figure class="my-8 w-full mx-auto">
+            <img src="scaled_images/landscape.png" alt="Landscape" class="rounded-lg mb-0">
+        </figure>
+        <h2>1 Motivation</h2>
+        <p>I love stylized art styles, and pixel art is a style that I find particularly charming. But making good pixel
+            art is very difficult, especially animated pixel art. So as a graphics programmer, I wanted to see if I
+            could create a rendering pipeline that renders pixel art directly from a 3D scene. I've tried this before in
+            a game jam and it looked pretty cool, but I wanted to see if I could improve the quality and make it more
+            versatile.</p>
+        <figure class="my-8 w-full mx-auto">
+            <video muted autoplay loop class="w-full rounded-lg mb-0">
+                <source src="videos/aberrant.mp4"
+                    alt="Aberrant, my entry for the 2024 Acerola game jam. It features procedurally generated enemies rendered in pixel art style using a similar approach to the one described in this blog post"
+                    type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <figcaption class="figure-caption"><a href="https://thecodec.itch.io/aberrant" target="_blank">Aberrant</a>,
+                my entry for the 2024 Acerola game jam. It features
+                procedurally generated enemies rendered in pixel art style using a similar
+                approach to the one described in this blog post</figcaption>
+        </figure>
+        <p>Note that this is not some magic tool that can turn any 3D scene into pixel art. It requires a lot of manual
+            tweaking and artistic input to get good results. The results are also a very specific style of pixel art and
+            it is very clear that it is rendered, and not hand drawn. But I think it's a really fun and interesting way
+            to create pixel art, and it allows for some cool effects that would be difficult to achieve with traditional
+            pixel art techniques, such as dynamic lighting and animation.</p>
+        <h2>2 Method Overview</h2>
+        <p>My rendering pipeline consists of several steps, from low resolution rendering to color quantization and
+            dithering. To showcase each step, I've prepared a scene consisting of four simple shapes. If I can make
+            these shapes look like pixel art, then more complex shapes should also be possible. I've included both
+            angular and rounded shapes to explore different shading approaches. I implemented everything in the Godot
+            game engine, but the general approach should be applicable to any rendering engine.</p>
+        <figure class="my-8 w-2/3 mx-auto">
+            <img src="scaled_images/fullres_perspective.png" alt="The test scene" class="rounded-lg mb-0">
+            <figcaption class="figure-caption">The test scene</figcaption>
+        </figure>
+        <h3>2.1 Low Resolution Rendering</h3>
+        <p>Arguably the most important part of pixel art is the limited resolution. To achieve this, I render the scene
+            at a very low resolution and then scale it up to the screen size using nearest neighbor interpolation. This
+            gives the characteristic blocky look of pixel art.</p>
+        <figure class="my-8 w-2/3 mx-auto">
+            <img src="scaled_images/lowres_perspective.png" alt="Rendering at low resolution (128x128)"
+                class="rounded-lg mb-0">
+            <figcaption class="figure-caption">Rendering at low resolution (128x128)</figcaption>
+        </figure>
+        <p>This provides a good starting point, but it still looks like a pixelated mess right now. Notice how the cube
+            is all wobbly, compared to what you might expect from a pixel art cube.</p>
+        <h3>2.2 Orthographic Projection</h3>
+        <p>Most pixel art is drawn in orthographic perspective, which makes parallel lines remain parallel and keeps the
+            scale uniform across the scene. Fortunately, most game engines support orthographic projection. This fixes
+            the wobbly cube that now looks like actual pixel art. The torus also looks more uniform, since depth doesn't
+            affect the scale in orthographic projection, making each part of the torus the same size.</p>
+        <figure class="my-8 w-2/3 mx-auto">
+            <img src="scaled_images/lowres_orthographic.png" alt="Using orthographic projection"
+                class="rounded-lg mb-0">
+            <figcaption class="figure-caption">Using orthographic projection</figcaption>
+        </figure>
+        <p>However, especially the rounded shapes still clearly look like a low-res 3D render and not like pixel art.
+        </p>
+        <h3>2.3 Posterization</h3>
+        <p>One key component of good pixel art is the color palette. Try this yourself: Look at your favorite pixel art
+            and count the number of unique colors. You should find that it's quite low (<30). Instead of utilizing the
+                full spectrum of colors, pixel artists often only use colors from a predefined color palette. To achieve
+                this in my renderer, I pick the closest color from a given palette for each pixel on the screen, after
+                rendering the scene.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/color_palette.png" alt="Color palette posterization"
+                        class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Color palette posterization</figcaption>
+                </figure>
+                <p>This does reduce the "smeared" 3D render look, but the posterization introduces banding artifacts
+                    which are visible on the rounded shapes. Also, since many colors collapse to the same color in the
+                    palette, it is difficult so make out some of the shapes, for example the star.</p>
+                <h3>2.4 Dithering</h3>
+                <p>To mitigate the banding artifacts from color posterization, we can use dithering. Dithering adds a
+                    small offset to the color value of each pixel before posterization, which helps to break up the
+                    banding. With dithering, we can have fairly smooth color gradients which naturally appear on rounded
+                    shapes, while still using a limited color palette.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img-comparison-slider hover="hover" class="block rounded-lg overflow-hidden mb-0">
+                        <div slot="first" class="relative">
+                            <img src="scaled_images/no_dither.png" class="w-full block" />
+                            <span class="absolute top-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                No dithering
+                            </span>
+                        </div>
+
+                        <div slot="second" class="relative">
+                            <img src="scaled_images/dither.png" class="w-full block" />
+                            <span class="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Dithering
+                            </span>
+                        </div>
+                    </img-comparison-slider>
+                    <figcaption class="figure-caption">A color gradient quantized to 64 colors, with and without
+                        dithering. Both images use exactly the same 64 distinct colors.
+                    </figcaption>
+                </figure>
+                <p>Applying this to the render improves the shading a bit.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/color_palette_dithered.png" alt="Color palette with dithering"
+                        class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Color palette with dithering</figcaption>
+                </figure>
+                <p>The shading on the torus and sphere looks much better now. However, the star is still hard to make
+                    out. Also, the sphere color is very similar to the background color (which I didn't run through the
+                    color palette), so it doesn't stand out very well.</p>
+                <h3>2.5 Outlines and Highlights</h3>
+                <p>To fix both these issues, I added outlines and highlights. Outlines help to define the shapes and
+                    make them stand out from the background, while highlights can add some extra detail inside the
+                    shapes. Both require some kind of edge detection, but since I have a 3D scene, I can use additional
+                    buffers such as normals and depth to detect edges. More specifically, I first compute the difference
+                    in depth and normals between neighboring pixels. Then, if there is a big jump in depth, then it's
+                    likely at the edge of a shape, so that pixel gets colored with the outline color. If there is a big
+                    jump in normals (but not in depth), then it's likely at an edge between two faces of the same shape,
+                    so that pixel gets colored with the highlight color. This is a very simple approach, but it works
+                    surprisingly well.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img-comparison-slider hover="hover" class="block rounded-lg overflow-hidden mb-0">
+                        <div slot="first" class="relative">
+                            <img src="scaled_images/depth_diff.png" class="w-full block" />
+                            <span class="absolute top-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Depth difference
+                            </span>
+                        </div>
+
+                        <div slot="second" class="relative">
+                            <img src="scaled_images/normal_diff.png" class="w-full block" />
+                            <span class="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Normal difference
+                            </span>
+                        </div>
+                    </img-comparison-slider>
+                    <figcaption class="figure-caption">The depth difference and normal difference buffers used for edge
+                        detection. The brighter the pixel, the bigger the difference between neighboring pixels.
+                    </figcaption>
+                </figure>
+                <p>Applying this to the render makes the shapes much more distinguishable, especially the star.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/color_palette_outlines.png" alt="Outlines and highlights"
+                        class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Outlines and highlights</figcaption>
+                </figure>
+                <h3>2.6 Improved Posterization (Cel Shading)</h3>
+                <p>The previous posterization method works fairly well, but the overall shading and colors are hard to
+                    control, since everything snaps to the predefined color palette. In some cases this is exactly what
+                    you want, e.g. in a scene with consistent lighting where you want heavy stylization.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/stylized3.png" alt="A heavily stylized scene" class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">A heavily stylized scene</figcaption>
+                </figure>
+                <p>I personally want more precise control over the individual colors while still maintaining a limited
+                    color palette. One approach is to use a different shading model for our meshes.</p>
+                <h4>Cel Shading</h4>
+                <p>Why do we even need posterization? Where do the color gradients come from? Even though I only assign
+                    a single color per mesh, the final pixel color is not just determined by the base color of the mesh,
+                    but also by the lighting and shading model used to render the object. It depends on the angle
+                    towards the light sources, occlusion, viewing angle, etc. This is nice for realistic rendering, but
+                    we don't want that here. So instead of rendering it with the default diffuse (+specular) shading
+                    model and then posterizing the colors, we can directly "posterize" the lighting values. This is the
+                    idea behind cel shading, which is a non-photorealistic shading technique that gives a flat,
+                    cartoon-like appearance to 3D models. In cel shading, the lighting is quantized into a few discrete
+                    levels, which creates a more stylized look. This way, we can have more control over the colors while
+                    still maintaining a limited color palette.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/fullres_toon.png" alt="Cel shading" class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Cel shading</figcaption>
+                </figure>
+                <p>Cel shading, together with the other techniques such as dithering and outlines, creates a very
+                    similar pixel art effect but with much more control over the individual colors.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/toon.png" alt="Cel shaded pixel art" class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Cel shaded pixel art</figcaption>
+                </figure>
+                <p>This concludes the pixel art rendering pipeline.</p>
+                <h2>3 Results</h2>
+                <p>
+                    With the complete pipeline, we can create a wide array of pixel art scenes. But again, it still
+                    requires a lot of manual tweaking to get good results, e.g. choosing the right toon shader
+                    parameters
+                    for each mesh, setting the correct amount of dithering, adjusting the outline and highlight
+                    strengths, and so on.
+                </p>
+                <h3>3.1 Dynamic Lighting and Animation</h3>
+                <p>Rendering pixel art in real time allows for dynamic lighting and animation, which is one of the main
+                    advantages of this approach compared to traditional pixel art. Since I'm rendering from a 3D scene,
+                    I can easily change the lighting conditions and animate the objects in the scene.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/light.mp4" alt="Dynamic lighting" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Dynamic lighting</figcaption>
+                </figure>
+                <p>Thanks to the orthographic projection, rotations look very crisp and maintain the pixel art style.
+                </p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/rotation.mp4" alt="Rotations" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Rotations</figcaption>
+                </figure>
+                <p>However, translations require some extra care to maintain a consistent look. Rendering at a low
+                    resolution combined with no interpolation whatsoever is an aliasing nightmare, so we need to make
+                    sure that the objects are always aligned to the pixel grid. Luckily, this is very easy to achieve,
+                    since we're using orthographic projection. First, compute the size of a pixel in world space, which
+                    is just the size of the orthographic view divided by the resolution. Then, round the position of
+                    each object to the nearest multiple of the pixel size. This avoids any aliasing artifacts and keeps
+                    the pixel art look consistent even during translations.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/aliasing.mp4"
+                            alt="Translation with and without pixel grid alignment. The top shape is not aligned to the pixel grid, which causes some flickering. The bottom shape is aligned to the pixel grid and maintains a consistent look."
+                            type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Translation with and without pixel grid alignment. The top shape
+                        is not aligned to the pixel grid, which causes some flickering. The bottom shape is aligned to
+                        the pixel grid and maintains a consistent look.</figcaption>
+                </figure>
+                <h3>3.2 Comparisons</h3>
+                <p>Here are some cool before/after comparisons I didn't know where else to put:</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img-comparison-slider hover="hover" class="block rounded-lg overflow-hidden mb-0">
+                        <div slot="first" class="relative">
+                            <img src="scaled_images/fullres_orthographic.png" class="w-full block" />
+                            <span class="absolute top-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Default Full-Resolution Scene
+                            </span>
+                        </div>
+
+                        <div slot="second" class="relative">
+                            <img src="scaled_images/toon.png" class="w-full block" />
+                            <span class="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Pixel Art
+                            </span>
+                        </div>
+                    </img-comparison-slider>
+                    <figcaption class="figure-caption">Comparing the default full-resolution render with the final pixel
+                        art result.
+                    </figcaption>
+                </figure>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img-comparison-slider hover="hover" class="block rounded-lg overflow-hidden mb-0">
+                        <div slot="first" class="relative">
+                            <img src="scaled_images/fullres_toon.png" class="w-full block" />
+                            <span class="absolute top-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Full-Resolution Cel Shaded Scene
+                            </span>
+                        </div>
+
+                        <div slot="second" class="relative">
+                            <img src="scaled_images/toon.png" class="w-full block" />
+                            <span class="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                                Pixel Art
+                            </span>
+                        </div>
+                    </img-comparison-slider>
+                    <figcaption class="figure-caption">Comparing the full-resolution cel shaded render with the final
+                        pixel art result.
+                    </figcaption>
+                </figure>
+                <h3>3.3 More Complex Scenes</h3>
+                <p>I put together a dungeon scene to see how well this approach works on a more complex game-like scene.
+                    I think it looks pretty cool!</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/dungeon.png" alt="Dungeon scene" class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Dungeon scene</figcaption>
+                </figure>
+                <p>I also tried to make some planets with procedural noise textures, which look alright. Texture support
+                    is a bit hacky at this point and I definitely want to revisit that, but it's nice to see that it
+                    already produces decent results.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <img src="scaled_images/planets.png" alt="Planets" class="rounded-lg mb-0">
+                    <figcaption class="figure-caption">Planets</figcaption>
+                </figure>
+                <p>3D text looks pretty sick as well.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/text.mp4" alt="Text rendering" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Text rendering</figcaption>
+                </figure>
+                <h3>3.4 Particle Effects</h3>
+                <p>I made a simple explosion effect by combining a few particle systems and an animated point light.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/explosion1.mp4" alt="Explosion effect" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Explosion effect</figcaption>
+                </figure>
+                <p>And another one with different colors and shapes.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/explosion2.mp4" alt="Another explosion effect" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Another explosion effect</figcaption>
+                </figure>
+                <p>It's not really a particle effect, but this rigid body simulation also looks pretty cool in pixel art
+                    style.</p>
+                <figure class="my-8 w-2/3 mx-auto">
+                    <video muted autoplay loop class="w-full rounded-lg mb-0">
+                        <source src="videos/rb.mp4" alt="Rigid body simulation" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <figcaption class="figure-caption">Rigid body simulation</figcaption>
+                </figure>
+                <h2>4 Conclusion</h2>
+                <p>I'm pretty happy with how this project turned out. I definitely want to improve it further and build
+                    a little game on top of it, since it's already implemented in Godot.</p>
+                <p>Some things I want to add/improve:</p>
+                <ul>
+                    <li>Even more control over individual colors, e.g. by using a color ramp to shade objects.</li>
+                    <li>Currently, outlines and highlights are applied on top of the dithered objects, making them
+                        appear dithered as well. It would be nice to have clean outlines and highlights that are not
+                        affected by dithering.</li>
+                    <li>Custom post processing effects. I used the deault Godot bloom here and there, but that creates
+                        smooth color gradients, which don't fit the pixel art style. Subtle bloom can look nice, but it
+                        would be interesting to explore custom post processing effects that are more tailored to the
+                        pixel art look.</li>
+                    <li>Rendering other types of objects such as foliage and water.</li>
+                </ul>
+                <h2>5 Acknowledgements</h2>
+                <ul>
+                    <li>My Godot setup is based on this project <a
+                            href="https://github.com/DylearnDev/Dylearn-3D-Pixel-Art-Grass-Demo" target="_blank">Dylearn
+                            3D Pixel Art Grass Demo</a></li>
+                    <li>I based my toon (cel) shader on this <a
+                            href="https://github.com/atzuk4451/FlexibleToonShaderGD-4.0" target="_blank">Flexible Toon
+                            Shader</a></li>
+                    <li>For the dungeon scene, I used assets from <a href="https://kaylousberg.com/game-assets"
+                            target="_blank">Kay Lousberg's Game Assets</a></li>
+                </ul>
+
+                <webring-banner theme="../resources/polyring_banner_theme.json"
+                    style="display: flex; justify-content: center; align-items: center;" class="mt-24">
+                    <p>Member of the <a href="https://polyring.ch">Polyring</a> webring</p>
+                </webring-banner>
+                <script async="" src="https://polyring.ch/embed.js" charset="utf-8"></script>
+    </main>
+
+</body>
+
+</html>
